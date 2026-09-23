@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AI Error Explainer</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            max-width: 900px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            line-height: 1.6;
+            white-space: normal;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: Consolas, monospace;
+        }
+
+        h3 {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>AI Error Explainer</h1>
+
+    <p>Enter your programming error:</p>
+
+    <textarea id="errorInput" rows="10"
+        placeholder="Paste your Java error here..."></textarea>
+
+    <br>
+
+    <button onclick="explainError()">Explain Error</button>
+
+    <h2>AI Explanation</h2>
+
+    <div id="result"></div>
+
+    <script>
+
+        function explainError() {
+
+            const error = document.getElementById("errorInput").value;
+
+            if (error.trim() === "") {
+                document.getElementById("result").innerText =
+                    "Please enter a programming error.";
+                return;
+            }
+
+            document.getElementById("result").innerText =
+                "AI is analyzing your error...";
+
+            fetch("/explain", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "text/plain"
+                },
+                body: error
+            })
+
+            .then(response => response.text())
+
+            .then(result => {
+
+                let formattedResult = result
+                    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                    .replace(/^### (.*)$/gm, "<h3>$1</h3>")
+                    .replace(/```java\s*([\s\S]*?)```/g,
+                        "<pre><code>$1</code></pre>")
+                    .replace(/```\s*([\s\S]*?)```/g,
+                        "<pre><code>$1</code></pre>")
+                    .replace(/\n/g, "<br>");
+
+                document.getElementById("result").innerHTML =
+                    formattedResult;
+
+            })
+
+            .catch(error => {
+
+                document.getElementById("result").innerText =
+                    "Something went wrong: " + error;
+
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>
